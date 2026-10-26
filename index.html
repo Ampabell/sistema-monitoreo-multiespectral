@@ -1,0 +1,448 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Captura Multiespectral</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5f7;
+            color: #243342;
+        }
+
+        .header-principal {
+            background: #183b35;
+            color: white;
+            padding: 15px 30px;
+            min-height: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-principal h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .logo-principal {
+            max-width: 220px;
+            max-height: 75px;
+            object-fit: contain;
+        }
+
+        main {
+            max-width: 1250px;
+            margin: 28px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e0e6e8;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 22px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-top: 0;
+        }
+
+        .status {
+            display: inline-block;
+            background: #fff2d8;
+            color: #805b13;
+            padding: 7px 11px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        button, select {
+            padding: 11px 15px;
+            border-radius: 7px;
+            border: 1px solid #cbd5d9;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+        }
+
+        button {
+            background: #1c6555;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: #e9efed;
+            color: #24463e;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 22px;
+        }
+
+        .image-area {
+            min-height: 320px;
+            background: #18211f;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #c9d4d1;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .image-area img {
+            display: block;
+            max-width: 100%;
+            max-height: 430px;
+            object-fit: contain;
+        }
+
+        .info {
+            background: #f4f7f6;
+            padding: 14px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .info p {
+            margin-bottom: 0;
+        }
+
+        .muted {
+            color: #6c7a80;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .opciones-bandas {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .opcion-banda {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            border: 1px solid #dce5e1;
+            border-radius: 7px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .opcion-banda input {
+            accent-color: #1c6555;
+        }
+
+        .resumen {
+            background: #edf4f1;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .info p:first-of-type {
+            margin-top: 8px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        footer {
+            text-align: center;
+            color: #78858a;
+            font-size: 12px;
+            padding: 20px;
+        }
+
+        @media (max-width: 750px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .header-principal h1 {
+                font-size: 19px;
+            }
+
+            .logo-principal {
+                max-width: 100px;
+            }
+
+            .opciones-bandas {
+                grid-template-columns: repeat(2, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header-principal">
+        <h1>Sistema de Captura Multiespectral</h1>
+
+        <img
+            src="imagenes/logo_uda.avif"
+            alt="Logo Universidad de Atacama"
+            class="logo-principal"
+        >
+    </header>
+
+    <main>
+        <!-- 1. CONEXIÓN DE CÁMARA: SIEMPRE ARRIBA -->
+        <section class="panel">
+            <h2>Conexión de cámara</h2>
+
+            <span class="status" id="estado">
+               
+            </span>
+
+          
+
+            <button type="button" id="btnConectar">
+                Conectar cámara
+            </button>
+
+            <pre id="resultadoPython" style="
+                white-space: pre-wrap;
+                overflow-wrap: anywhere;
+                max-height: 220px;
+                overflow-y: auto;
+                background: #f4f7f6;
+                padding: 14px;
+                border-radius: 8px;
+                font-size: 12px;
+            ">Esperando una prueba de conexión...</pre>
+        </section>
+
+        
+        <section class="panel">
+            <h2> Modo de captura</h2>
+
+    
+
+            <button
+                type="button"
+                id="btnCapturaIndividual"
+            >
+                Captura individual
+            </button>
+
+            <button
+                type="button"
+                id="btnCapturaRueda"
+                class="secondary"
+            >
+                Captura con rueda de filtros
+            </button>
+
+            <!-- MODO INDIVIDUAL -->
+            <div id="panelIndividual" class="info">
+                <h3>Captura individual</h3>
+
+                <p>
+                    Selecciona la longitud de onda que deseas adquirir.
+                </p>
+
+                <label for="banda">Longitud de onda:</label>
+
+                <select id="banda">
+                    <option value="850">850 nm</option>
+                    <option value="900">900 nm</option>
+                    <option value="1000">1000 nm</option>
+                    <option value="1100">1100 nm</option>
+                    <option value="1200">1200 nm</option>
+                    <option value="1300">1300 nm</option>
+                    <option value="1400">1400 nm</option>
+                    <option value="1500">1500 nm</option>
+                    <option value="1550">1550 nm</option>
+                    <option value="1600">1600 nm</option>
+                </select>
+
+                <p class="muted" id="bandaSeleccionada">
+                    Banda seleccionada: 850 nm
+                </p>
+
+                <button type="button" id="btnCapturar">
+                    Capturar banda
+                </button>
+            </div>
+
+            <!-- MODO RUEDA DE FILTROS -->
+            <div id="panelRueda" class="info" hidden>
+                <h3>Captura con rueda de filtros</h3>
+
+                <p>
+                    Selecciona las bandas que deseas adquirir.
+                    La rueda de filtros se integrará con Arduino.
+                </p>
+
+                <div class="opciones-bandas">
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="850" checked>
+                        850 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="900" checked>
+                        900 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1000" checked>
+                        1000 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1100" checked>
+                        1100 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1200" checked>
+                        1200 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1300" checked>
+                        1300 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1400" checked>
+                        1400 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1500" checked>
+                        1500 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1550" checked>
+                        1550 nm
+                    </label>
+
+                    <label class="opcion-banda">
+                        <input type="checkbox" name="bandas" value="1600" checked>
+                        1600 nm
+                    </label>
+                </div>
+
+                <div class="resumen" id="resumenBandas">
+                    10 bandas seleccionadas.
+                </div>
+
+                <button type="button" id="btnCapturarRueda" disabled>
+                    Iniciar secuencia de captura
+                </button>
+            </div>
+
+            <button
+                type="button"
+                id="btnDetener"
+                class="secondary"
+                disabled
+            >
+                Detener captura
+            </button>
+        </section>
+
+        <!-- VISUALIZACIÓN DE IMÁGENES -->
+        <div class="workspace">
+            <section class="panel">
+                <h2>Visualización de imágenes</h2>
+
+                <p class="muted">
+                    Aquí se visualizará el fotograma correspondiente
+                    a la banda adquirida.
+                </p>
+
+                <div class="image-area" id="areaImagen">
+                    <p id="mensaje">
+                        La imagen capturada se visualizará aquí.
+                        <br><br>
+                        Resolución prevista: 320 × 256 píxeles
+                    </p>
+                </div>
+            </section>
+
+            <!--  CUBO MULTIESPECTRAL -->
+            <section class="panel">
+                <h2> Cubo multiespectral</h2>
+
+                <p class="muted">
+                    Las imágenes adquiridas podrán organizarse
+                    en un arreglo tridimensional.
+                </p>
+
+                <div class="info">
+                    <strong>Dimensiones previstas</strong>
+                    <p>Filas: 256</p>
+                    <p>Columnas: 320</p>
+                    <p>Bandas configuradas: 10</p>
+                </div>
+
+                <div class="info">
+                    <strong>Formato de datos</strong>
+                    <p>Arreglo tridimensional</p>
+                    <p id="dimensionesCubo">
+                        (256, 320, 10)
+                    </p>
+                </div>
+
+                <button type="button" id="btnGenerarCubo" disabled>
+                    Generar cubo
+                </button>
+
+                <button
+                    type="button"
+                    id="btnGuardarCubo"
+                    class="secondary"
+                    disabled
+                >
+                    Guardar cubo
+                </button>
+
+                <p class="muted">
+                    Se habilitará al implementar y validar
+                    la adquisición de las bandas.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        Proyecto de investigación · Sistema de imágenes multiespectrales
+    </footer>
+
+    <script src="./renderer.js"></script>
+</body>
+</html>
